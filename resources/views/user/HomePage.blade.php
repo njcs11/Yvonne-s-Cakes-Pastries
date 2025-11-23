@@ -1,9 +1,18 @@
 @extends('layouts.app')
 
-@section('title', "Home")
+@section('partials.footer')
+@endsection
 
 @section('content')
     @include('partials.homepage.hero')
+    @include('partials.homepage.categories')
+    @include('partials.homepage.products', ['featuredProducts' => $featuredProducts])
+
+
     @include('partials.homepage.about')
-    @include('partials.homepage.products')
+
+    {{-- CTA before About/Footer --}}
+    @include('partials.homepage.cta')
+
+    
 @endsection

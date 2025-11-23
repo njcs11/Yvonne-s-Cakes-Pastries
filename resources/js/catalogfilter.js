@@ -1,254 +1,249 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // --------------------------
-    // CATEGORY FILTER
-    // --------------------------
+document.addEventListener("DOMContentLoaded", function () {
     const categoryButtons = document.querySelectorAll(".category-btn");
-    const products = document.querySelectorAll(".product-card");
+    const productCards = document.querySelectorAll(".product-card");
 
+    // ------------------- CATEGORY FILTER -------------------
     categoryButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const category = btn.dataset.category;
-            products.forEach(product => {
-                if (category === "all" || product.dataset.category === category) {
-                    product.classList.remove("hidden");
-                } else product.classList.add("hidden");
+            productCards.forEach(card => {
+                card.style.display = card.dataset.category === category ? "block" : "none";
             });
-            categoryButtons.forEach(b => b.classList.remove("bg-[#FFEFEA]", "shadow-lg"));
-            btn.classList.add("bg-[#FFEFEA]", "shadow-lg");
         });
     });
 
-    // --------------------------
-    // MODALS
-    // --------------------------
+    // ------------------- MODALS -------------------
     const modals = {
-        foodtrays: document.getElementById("foodtray-modal"),
+        foodtray: document.getElementById("foodtray-modal"),
         foodpackage: document.getElementById("foodpackage-modal"),
         cake: document.getElementById("cake-modal"),
         cupcake: document.getElementById("cupcake-modal"),
-        paluwagan: document.getElementById("paluwagan-modal")
+        paluwagan: document.getElementById("paluwagan-modal"),
     };
 
-    const formatPHP = v => `₱ ${parseFloat(v).toFixed(2)}`;
+    const openModal = (modal) => modal.classList.remove("hidden");
+    const closeModal = (modal) => modal.classList.add("hidden");
 
-    // --------------------------
-    // CART COUNT
-    // --------------------------
-    const cartCountEl = document.getElementById('cart-count');
-    const updateCartCount = count => {
-        if (cartCountEl) cartCountEl.textContent = `${count} item(s) added`;
-    };
-
-    // --------------------------
-    // ADD TO CART FUNCTION
-    // --------------------------
-    const addToCart = (item, modal) => {
-        fetch('/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify(item)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                updateCartCount(data.cartCount);
-                alert(`${item.name} added to cart`);
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            }
+    // ------------------- CLOSE BUTTONS (Cancel) -------------------
+    // Works for all modals with id starting with 'close-'
+    document.querySelectorAll("[id^=close-]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const modal = btn.closest(".fixed.inset-0");
+            if (modal) closeModal(modal);
         });
-    };
+    });
 
-    // --------------------------
-    // OPEN MODALS
-    // --------------------------
-    document.querySelectorAll(".product-card").forEach(card => {
+    // ------------------- PRODUCT CARD CLICK -------------------
+    productCards.forEach(card => {
         card.addEventListener("click", () => {
             const category = card.dataset.category;
-            const name = card.dataset.name;
-            const desc = card.dataset.description;
-            const image = card.dataset.image;
-            const price = parseFloat(card.dataset.price.replace(/[₱, ]/g, "")) || 0;
-
-            let modal, qtyEl, nameEl, descEl, imageEl, priceEl, totalEl;
+            const servings = JSON.parse(card.dataset.servings || "[]");
+            const isCustomization = card.dataset.customization === "true";
 
             switch (category) {
-                case "foodtrays":
-                    modal = modals.foodtrays;
-                    nameEl = document.getElementById("modal-name");
-                    descEl = document.getElementById("modal-description");
-                    imageEl = document.getElementById("modal-image");
-                    priceEl = document.getElementById("modal-price");
-                    totalEl = document.getElementById("modal-total");
-                    qtyEl = document.getElementById("quantity");
+                case "foodtray":
+                    populateFoodTrayModal(card, servings);
+                    openModal(modals.foodtray);
                     break;
                 case "foodpackage":
-                    modal = modals.foodpackage;
-                    nameEl = document.getElementById("package-name");
-                    descEl = document.getElementById("package-desc");
-                    imageEl = document.getElementById("package-image");
-                    priceEl = document.getElementById("package-price");
-                    totalEl = document.getElementById("package-total");
-                    qtyEl = document.getElementById("quantity-package");
+                    populateFoodPackageModal(card, servings);
+                    openModal(modals.foodpackage);
                     break;
                 case "cake":
-                    modal = modals.cake;
-                    nameEl = document.getElementById("cake-name");
-                    descEl = document.getElementById("cake-desc");
-                    imageEl = document.getElementById("cake-image");
-                    priceEl = document.getElementById("cake-price");
-                    totalEl = document.getElementById("cake-total");
-                    qtyEl = document.getElementById("quantity-cake");
+                    populateCakeModal(card, servings, isCustomization);
+                    openModal(modals.cake);
                     break;
                 case "cupcake":
-                    modal = modals.cupcake;
-                    nameEl = document.getElementById("cupcake-name");
-                    descEl = document.getElementById("cupcake-desc");
-                    imageEl = document.getElementById("cupcake-image");
-                    priceEl = document.getElementById("cupcake-price");
-                    totalEl = document.getElementById("cupcake-total");
-                    qtyEl = document.getElementById("quantity-cupcake");
+                    populateCupcakeModal(card, servings, isCustomization);
+                    openModal(modals.cupcake);
                     break;
                 case "paluwagan":
-                    modal = modals.paluwagan;
-                    const step1 = document.getElementById("paluwagan-step1");
-                    const step2 = document.getElementById("paluwagan-step2");
-                    document.getElementById("paluwagan-name").textContent = name;
-                    document.getElementById("paluwagan-desc").textContent = desc;
-                    document.getElementById("paluwagan-image").src = image;
-                    document.getElementById("paluwagan-image2").src = image;
-                    document.getElementById("paluwagan-total").textContent = `₱${price.toLocaleString()}`;
-                    document.getElementById("paluwagan-monthly").textContent = `₱${(price / 10).toLocaleString()}`;
-                    step1.classList.remove("hidden");
-                    step2.classList.add("hidden");
-                    modal.classList.remove("hidden");
-                    modal.classList.add("flex");
-                    return; // paluwagan handled separately
-            }
-
-            if (modal) {
-                nameEl.textContent = name;
-                descEl.textContent = desc;
-                imageEl.src = image;
-                priceEl.textContent = formatPHP(price);
-                totalEl.textContent = formatPHP(price);
-                qtyEl.textContent = 1;
-                modal.classList.remove("hidden");
-                modal.classList.add("flex");
+                    populatePaluwaganModal(card);
+                    openModal(modals.paluwagan);
+                    break;
             }
         });
     });
 
-    // --------------------------
-    // QUANTITY HANDLERS
-    // --------------------------
-    function setupQtyHandlers(qtyId, priceId, totalId) {
-        const qtyEl = document.getElementById(qtyId);
-        const priceEl = document.getElementById(priceId);
-        const totalEl = document.getElementById(totalId);
-
-        document.getElementById(`increase-${qtyId}`)?.addEventListener("click", () => {
-            qtyEl.textContent = parseInt(qtyEl.textContent) + 1;
-            totalEl.textContent = formatPHP(parseFloat(priceEl.textContent.replace(/[₱, ]/g, "")) * parseInt(qtyEl.textContent));
-        });
-        document.getElementById(`decrease-${qtyId}`)?.addEventListener("click", () => {
-            if (parseInt(qtyEl.textContent) > 1) {
-                qtyEl.textContent = parseInt(qtyEl.textContent) - 1;
-                totalEl.textContent = formatPHP(parseFloat(priceEl.textContent.replace(/[₱, ]/g, "")) * parseInt(qtyEl.textContent));
+    // ------------------- HELPER -------------------
+    function populateDescriptionList(ulEl, description) {
+        ulEl.innerHTML = '';
+        if (!description) return;
+        description.split("\n").forEach(line => {
+            if (line.trim()) {
+                const li = document.createElement("li");
+                li.textContent = line.trim();
+                ulEl.appendChild(li);
             }
         });
     }
 
-    ["quantity", "quantity-package", "quantity-cake", "quantity-cupcake"].forEach(id => {
-        const priceId = id.replace("quantity", "price");
-        const totalId = id.replace("quantity", "total");
-        setupQtyHandlers(id, priceId, totalId);
-    });
+    // ------------------- FOOD TRAY -------------------
+    function populateFoodTrayModal(card, servings) {
+        const modal = modals.foodtray;
+        modal.querySelector("#foodtray-name").textContent = card.dataset.name;
+        modal.querySelector("#foodtray-image").src = card.dataset.image;
+        populateDescriptionList(modal.querySelector("#foodtray-includes"), card.dataset.description);
 
-    // --------------------------
-    // ADD TO CART BUTTONS
-    // --------------------------
-    document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const id = this.dataset.id;
-            const name = this.dataset.name;
-            const price = parseFloat(this.dataset.price.replace(/[₱, ]/g, "")) || 0;
-            const image = this.dataset.image;
-            let quantity = parseInt(this.dataset.quantity) || 1;
-
-            const modal = this.closest('div[id$="-modal"]');
-            if (modal) {
-                const qtyEl = modal.querySelector('span[id^="quantity"]');
-                if (qtyEl) quantity = parseInt(qtyEl.textContent);
-            }
-
-            addToCart({ id, name, price, quantity, image }, modal);
+        const select = modal.querySelector("#foodtray-size");
+        select.innerHTML = "";
+        servings.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.price;
+            opt.textContent = `${s.size} - ₱${parseFloat(s.price).toFixed(2)}`;
+            select.appendChild(opt);
         });
-    });
 
-    // --------------------------
-    // GENERIC MODAL CLOSE/CANCEL HANDLER
-    // --------------------------
-    Object.entries(modals).forEach(([key, modal]) => {
-        if (!modal) return;
+        let qty = 1;
+        const qtyEl = modal.querySelector("#quantity-foodtray");
+        const priceEl = modal.querySelector("#foodtray-price");
+        const totalEl = modal.querySelector("#foodtray-total");
 
-        const closeModal = () => {
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
+        const updateTotal = () => {
+            qtyEl.textContent = qty;
+            const price = parseFloat(select.value) || 0;
+            priceEl.textContent = `₱${price.toFixed(2)}`;
+            totalEl.textContent = `₱${(price * qty).toFixed(2)}`;
         };
 
-        // buttons with class
-        modal.querySelectorAll('.close-modal, .cancel-modal').forEach(btn => btn.addEventListener("click", closeModal));
+        select.onchange = updateTotal;
+        modal.querySelector("#increase-qty-foodtray").onclick = () => { qty++; updateTotal(); };
+        modal.querySelector("#decrease-qty-foodtray").onclick = () => { if (qty > 1) qty--; updateTotal(); };
+        updateTotal();
+    }
 
-        // optional: support specific cancel ids like cancel-foodtrays
-        const cancelId = `cancel-${key}`;
-        document.getElementById(cancelId)?.addEventListener("click", closeModal);
+    // ------------------- FOOD PACKAGE -------------------
+    function populateFoodPackageModal(card, servings) {
+        const modal = modals.foodpackage;
+        modal.querySelector("#foodpackage-name").textContent = card.dataset.name;
+        modal.querySelector("#foodpackage-image").src = card.dataset.image;
+        populateDescriptionList(modal.querySelector("#foodpackage-includes"), card.dataset.description);
 
-        // click outside modal closes it
-        modal.addEventListener("click", e => {
-            if (e.target === modal) closeModal();
-        });
-    });
+        const price = servings[0]?.price || 0;
+        modal.querySelector("#foodpackage-price").textContent = `₱${parseFloat(price).toFixed(2)}`;
+        modal.querySelector("#foodpackage-total").textContent = `₱${parseFloat(price).toFixed(2)}`;
 
-    // --------------------------
-    // PALUWAGAN MULTI-STEP
-    // --------------------------
-    if (modals.paluwagan) {
-        const step1 = document.getElementById("paluwagan-step1");
-        const step2 = document.getElementById("paluwagan-step2");
+        let qty = 1;
+        const qtyEl = modal.querySelector("#quantity-foodpackage");
 
-        document.getElementById("join-paluwagan")?.addEventListener("click", () => {
-            step1.classList.add("hidden");
-            step2.classList.remove("hidden");
-        });
-
-        document.getElementById("back-paluwagan")?.addEventListener("click", () => {
-            step2.classList.add("hidden");
-            step1.classList.remove("hidden");
-        });
-
-        const closePaluwagan = () => {
-            modals.paluwagan.classList.add("hidden");
-            modals.paluwagan.classList.remove("flex");
+        const updateTotal = () => {
+            qtyEl.textContent = qty;
+            modal.querySelector("#foodpackage-total").textContent = `₱${(price * qty).toFixed(2)}`;
         };
 
-        ["cancel-paluwagan", "close-modal-paluwagan"].forEach(id => {
-            document.getElementById(id)?.addEventListener("click", closePaluwagan);
-        });
+        modal.querySelector("#increase-qty-foodpackage").onclick = () => { qty++; updateTotal(); };
+        modal.querySelector("#decrease-qty-foodpackage").onclick = () => { if (qty > 1) qty--; updateTotal(); };
+        updateTotal();
+    }
 
-        modals.paluwagan.addEventListener("click", e => {
-            if (e.target === modals.paluwagan) closePaluwagan();
-        });
+    // ------------------- CAKE -------------------
+    function populateCakeModal(card, servings, isCustomization) {
+    const modal = modals.cake;
+    const customizationCard = modal.querySelector("#cake-customization");
+    const messageWrapper = modal.querySelector("#cake-message-wrapper");
+    const messageInput = modal.querySelector("#cake-message");
+    const imageEl = modal.querySelector("#cake-image");
 
-        document.getElementById("confirm-paluwagan")?.addEventListener("click", () => {
-            const startMonth = document.getElementById("start-month").value;
-            alert(`You have joined the Paluwagan! Starting month: ${startMonth}`);
-            closePaluwagan();
+    modal.querySelector("#cake-name").textContent = card.dataset.name;
+
+    // Personalized message always visible
+    messageWrapper.classList.remove("hidden");
+    messageInput.value = "";
+
+    if (isCustomization) {
+        customizationCard.classList.remove("hidden");
+        imageEl.classList.add("hidden"); // hide image for customization
+        const sizeSelect = modal.querySelector("#cake-size");
+        const flavorSelect = modal.querySelector("#cake-flavor");
+        const shapeSelect = modal.querySelector("#cake-shape");
+        const icingSelect = modal.querySelector("#cake-icing");
+
+        sizeSelect.innerHTML = "";
+        flavorSelect.innerHTML = "";
+        shapeSelect.innerHTML = "";
+        icingSelect.innerHTML = "";
+
+        servings.forEach(s => {
+            if (s.size) sizeSelect.innerHTML += `<option value="${s.price}">${s.size}</option>`;
+            if (s.flavor) flavorSelect.innerHTML += `<option value="${s.flavor}">${s.flavor}</option>`;
+            if (s.shape) shapeSelect.innerHTML += `<option value="${s.shape}">${s.shape}</option>`;
+            if (s.icing) icingSelect.innerHTML += `<option value="${s.icing}">${s.icing}</option>`;
         });
+    } else {
+        customizationCard.classList.add("hidden");
+        imageEl.classList.remove("hidden"); // show image for regular cakes
+        imageEl.src = card.dataset.image;
+    }
+
+    let qty = 1;
+    const priceEl = modal.querySelector("#cake-price");
+    const basePrice = isCustomization ? parseFloat(modal.querySelector("#cake-size")?.value || 0) : parseFloat(card.dataset.price || 0);
+
+    const updateTotal = () => {
+        const price = isCustomization ? parseFloat(modal.querySelector("#cake-size")?.value || 0) : basePrice;
+        priceEl.textContent = (price * qty).toFixed(2);
+    };
+
+    modal.querySelector("#increase-qty-cake").onclick = () => { qty++; updateTotal(); };
+    modal.querySelector("#decrease-qty-cake").onclick = () => { if (qty > 1) qty--; updateTotal(); };
+    if (isCustomization) modal.querySelector("#cake-size").onchange = updateTotal;
+    updateTotal();
+}
+
+    // ------------------- CUPCAKE -------------------
+    function populateCupcakeModal(card, servings, isCustomization) {
+        const modal = modals.cupcake;
+        const customizationCard = modal.querySelector("#cupcake-customization");
+        const regularInfo = modal.querySelector("#cupcake-product-info");
+
+        modal.querySelector("#cupcake-name").textContent = card.dataset.name;
+
+        // Personalized message always visible
+        const messageWrapper = modal.querySelector("#cupcake-message-wrapper");
+        const messageInput = modal.querySelector("#cupcake-message");
+        if (messageWrapper) messageWrapper.classList.remove("hidden");
+        if (messageInput) messageInput.value = "";
+
+        if (isCustomization) {
+            customizationCard.classList.remove("hidden");
+            if (regularInfo) regularInfo.classList.add("hidden");
+
+            const flavorSelect = modal.querySelector("#cupcake-flavor");
+            const icingSelect = modal.querySelector("#cupcake-icing");
+            flavorSelect.innerHTML = "";
+            icingSelect.innerHTML = "";
+
+            servings.forEach(s => {
+                if (s.flavor) flavorSelect.innerHTML += `<option value="${s.flavor}">${s.flavor}</option>`;
+                if (s.icing) icingSelect.innerHTML += `<option value="${s.icing}">${s.icing}</option>`;
+            });
+        } else {
+            customizationCard.classList.add("hidden");
+            if (regularInfo) regularInfo.classList.remove("hidden");
+            modal.querySelector("#cupcake-image").src = card.dataset.image;
+        }
+
+        let qty = 1;
+        const qtyEl = modal.querySelector("#quantity-cupcake");
+        const priceEl = modal.querySelector("#cupcake-price");
+        const price = servings[0]?.price || 0;
+
+        const updateTotal = () => {
+            qtyEl.textContent = qty;
+            priceEl.textContent = `₱${(price * qty).toFixed(2)}`;
+        };
+
+        modal.querySelector("#increase-qty-cupcake").onclick = () => { qty++; updateTotal(); };
+        modal.querySelector("#decrease-qty-cupcake").onclick = () => { if (qty > 1) qty--; updateTotal(); };
+        updateTotal();
+    }
+
+
+    // ------------------- PALUWAGAN -------------------
+    function populatePaluwaganModal(card) {
+        const modal = modals.paluwagan;
+        modal.querySelector("#paluwagan-name").textContent = card.dataset.name;
+        modal.querySelector("#paluwagan-image").src = card.dataset.image;
+        populateDescriptionList(modal.querySelector("#paluwagan-desc"), card.dataset.description || "");
     }
 });

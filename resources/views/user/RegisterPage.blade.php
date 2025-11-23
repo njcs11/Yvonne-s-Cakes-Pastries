@@ -44,7 +44,7 @@
                 </label>
             </div>
 
-            <button type="button" class="next-btn w-full bg-[#fce7ef] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Continue</button>
+            <button type="button" class="next-btn w-full bg-[#FF69B4] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Continue</button>
             <p class="text-xs text-center text-gray-400 mt-2">
                 Already have an account?
                 <a href="{{ route('login') }}" class="text-gray-600 font-semibold hover:underline">Login</a>
@@ -67,7 +67,7 @@
             </div>
             <div class="flex justify-between gap-3">
                 <button type="button" class="back-btn w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition">Back</button>
-                <button type="button" class="next-btn w-1/2 bg-[#fce7ef] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Continue</button>
+                <button type="button" class="next-btn w-1/2 bg-[#FF69B4] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Continue</button>
             </div>
             <p class="text-xs text-center text-gray-400 mt-2">Already have an account? 
                 <a href="{{ route('login') }}" class="text-gray-600 font-semibold hover:underline">Login</a>
@@ -105,7 +105,7 @@
 
             <div class="flex justify-between gap-3">
                 <button type="button" class="back-btn w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition">Back</button>
-                <button type="submit" class="submit-btn w-1/2 bg-[#fce7ef] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Create Account</button>
+                <button type="submit" class="submit-btn w-1/2 bg-[#FF69B4] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Create Account</button>
             </div>
 
             <p class="text-xs text-center text-gray-400 mt-2">Already have an account? 

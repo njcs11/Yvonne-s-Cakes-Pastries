@@ -28,8 +28,9 @@ Route::get('/login', [LoginPageController::class, 'index'])->name('login');
 Route::post('/login', [LoginPageController::class, 'store'])->name('login.store');
 Route::post('/logout', [LoginPageController::class, 'logout'])->name('logout');
 
-// Catalog - requires login
+// Catalog
 Route::get('/catalog', [CatalogPageController::class, 'index'])->name('catalog');
+
 
 // Cart routes
 Route::get('/cart', [CartPageController::class, 'index'])->name('cart');
@@ -48,6 +49,9 @@ Route::get('/product/{id}', [ProductDetailsPageController::class, 'show'])->name
 
 // Orders
 Route::resource('orders', OrdersPageController::class);
+Route::get('/product/{id}', [ProductDetailsPageController::class, 'productDetails'])
+     ->name('product.show');
+
 
 // Profile
 Route::get('/profile', function () {

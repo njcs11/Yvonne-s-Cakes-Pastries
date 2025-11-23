@@ -2,16 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\ProductType;
+use Illuminate\Http\Request;
+
 class HomePageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Load all products
-        $allProducts = include(resource_path('data/products.php'));
+        // Load categories - use the correct column name 'producttype'
+        $categories = ProductType::orderBy('producttype')->get();
 
-        // Pick first 3 for featured/best sellers
-        $featuredProducts = array_slice($allProducts, 0, 3);
+        // Product filtering
+        $query = Product::query();
 
-        return view('user.HomePage', compact('featuredProducts'));
+        if ($request->filled('type')) {
+            $query->where('productTypeID', $request->type);
+        }
+
+        // Featured products
+        $featuredProducts = $query->orderBy('productID', 'desc')->take(8)->get();
+
+        return view('user.HomePage', compact('categories', 'featuredProducts'));
     }
 }

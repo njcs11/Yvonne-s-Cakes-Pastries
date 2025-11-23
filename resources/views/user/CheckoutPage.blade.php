@@ -19,15 +19,17 @@
         <h1 class="text-2xl font-bold mb-1">Checkout</h1>
         <p class="text-gray-500 mb-8">Complete your order details</p>
 
-        {{-- Main Section --}}
         <div class="grid lg:grid-cols-3 gap-8">
-            {{-- LEFT: Delivery + Payment --}}
+
+            {{-- LEFT: Delivery & Payment --}}
             <div class="lg:col-span-2 bg-white rounded-lg shadow p-6 border border-gray-200">
 
                 {{-- Delivery Information --}}
                 <div class="mb-8">
                     <h2 class="font-semibold mb-1">Delivery Information</h2>
-                    <p class="text-sm text-gray-500 mb-4">Please provide your delivery details (2–3 days advance reservation required)</p>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Please provide your delivery details (2–3 days advance reservation required)
+                    </p>
 
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
@@ -57,37 +59,29 @@
                                   class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]"></textarea>
                         <p class="text-xs text-gray-400 mt-1 text-right">0/200 Characters</p>
                     </div>
-
-                    {{-- Note Box --}}
-                    <div class="bg-[#FFF0F0] text-sm text-red-500 border border-[#F9B3B0] p-3 mt-5 rounded-md">
-                        <strong>Note:</strong> You will pay ₱{{ number_format($downpayment, 0) }} (50% downpayment)
-                        when the order is delivered. The remaining balance of ₱{{ number_format($balance, 0) }}
-                        will be collected upon delivery.
-                    </div>
                 </div>
 
                 {{-- Payment Information --}}
                 <div>
                     <h2 class="font-semibold mb-1">Payment Information</h2>
-                    <p class="text-sm text-gray-500 mb-4">Choose your payment for the 50% downpayment</p>
+                    <p class="text-sm text-gray-500 mb-4">Choose your preferred payment method</p>
 
                     <div class="flex gap-6 mb-5">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="payment" value="gcash" checked>
+                            <input type="radio" id="pay-gcash" name="payment" value="gcash">
                             <span>Gcash</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="payment" value="cod">
+                            <input type="radio" id="pay-cod" name="payment" value="cod">
                             <span>Cash On Delivery (COD)</span>
                         </label>
                     </div>
 
                     {{-- Gcash Details --}}
-                    <div class="bg-[#FFF8F8] border border-[#F9B3B0] p-4 rounded-lg text-sm">
+                    <div id="gcashDetails" class="hidden bg-[#FFF8F8] border border-[#F9B3B0] p-4 rounded-lg text-sm">
                         <p class="font-semibold mb-2">Gcash Payment Details</p>
                         <p>Gcash Number: <span class="font-semibold">09123456789</span></p>
                         <p>Name: <span class="font-semibold">Yvonne’s Cakes and Pastries</span></p>
-                        <p>Amount to Pay: <span class="font-semibold">₱{{ number_format($downpayment, 0) }}</span></p>
 
                         <div class="mt-3">
                             <label class="font-medium block mb-1">Upload Proof of Payment</label>
@@ -95,12 +89,20 @@
                                    class="w-full text-sm border border-gray-300 rounded-md px-2 py-2 bg-white outline-none focus:ring-2 focus:ring-[#F9B3B0]">
                         </div>
                     </div>
+
+                    {{-- COD Note --}}
+                    <p id="codNote" class="mt-2 text-sm text-gray-600 border border-gray-300 rounded p-3 flex items-center gap-2 hidden">
+                        <span class="text-red-500 font-semibold">❗</span>
+                        <span class="font-semibold">Note:</span>
+                        <span>You will pay ₱<span id="orderTotal">0</span> when the order is delivered.</span>
+                    </p>
                 </div>
             </div>
 
             {{-- RIGHT: Order Summary --}}
             <div class="bg-white rounded-lg shadow p-6 border border-gray-200 h-fit">
                 <h2 class="text-lg font-semibold text-center bg-[#F9B3B0] text-white py-2 rounded">Order Summary</h2>
+
                 <div class="mt-4 text-sm divide-y divide-gray-200">
                     @foreach($cart as $item)
                         <div class="flex justify-between py-2">
@@ -113,23 +115,16 @@
                 <div class="text-sm mt-3 space-y-2">
                     <div class="flex justify-between">
                         <span>Subtotal</span>
-                        <span>₱{{ number_format($subtotal, 0) }}</span>
+                        <span>₱<span id="summarySubtotal">{{ number_format($subtotal, 0) }}</span></span>
                     </div>
-                    <div class="flex justify-between text-[#F69491]">
-                        <span>Downpayment (50%)</span>
-                        <span>₱{{ number_format($downpayment, 0) }}</span>
-                    </div>
-                    <div class="flex justify-between border-t pt-2 font-semibold">
-                        <span>Balance (Due on delivery)</span>
-                        <span>₱{{ number_format($balance, 0) }}</span>
-                    </div>
+
                     <div class="flex justify-between text-lg font-bold border-t pt-3 mt-3">
                         <span>Total</span>
-                        <span>₱{{ number_format($subtotal, 0) }}</span>
+                        <span>₱<span id="summaryTotal">{{ number_format($subtotal, 0) }}</span></span>
                     </div>
                 </div>
 
-                {{-- Place Order Button --}}
+                {{-- Place Order --}}
                 <form action="{{ route('checkout.placeOrder') }}" method="POST">
                     @csrf
                     <button type="submit"
@@ -140,10 +135,12 @@
             </div>
         </div>
 
-        {{-- Note at the bottom --}}
         <p class="text-center text-sm text-pink-400 mt-8">
             🕒 Order ahead of time within a 2–3 days reservation for normal orders
         </p>
     </div>
 </div>
+
+{{-- Include Vite JS --}}
+@vite('resources/js/payment.js')
 @endsection

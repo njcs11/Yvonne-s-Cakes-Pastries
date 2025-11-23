@@ -47,7 +47,7 @@
         </div>
 
         <button type="submit" 
-                class="w-full bg-[#fce7ef] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Login</button>
+                class="w-full bg-[#FF69B4] hover:bg-pink-200 text-gray-700 font-medium py-2 rounded-lg transition">Login</button>
 
         <div class="mt-4 flex items-start gap-2 text-xs text-gray-500">
             <span class="text-yellow-400 text-base">💡</span>

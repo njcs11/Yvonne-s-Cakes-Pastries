@@ -3,34 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\DTO\CustomerLoginDTO;
+use App\Services\CustomerLoginService;
 
 class LoginPageController extends Controller
 {
+    protected CustomerLoginService $loginService;
+
+    public function __construct(CustomerLoginService $loginService)
+    {
+        $this->loginService = $loginService;
+    }
+
     // Show login page
     public function index()
     {
-        // Clear any previous dummy session for clean frontend testing
-        session()->forget('logged_in_user');
-
+        session()->forget('logged_in_user'); // Clear previous session
         return view('user.LoginPage');
     }
 
-    // Handle login submission (frontend simulation only)
+    // Handle login submission
     public function store(Request $request)
     {
+        // Validate input
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Simulate a successful login without checking real password
-        $dummyUser = [
-            'firstname' => $request->username
-        ];
+        // Create DTO
+        $dto = new CustomerLoginDTO($request->only('username', 'password'));
 
-        session(['logged_in_user' => $dummyUser]);
+        // Attempt login
+        $customer = $this->loginService->login($dto);
 
-        return redirect()->route('catalog')->with('success', 'Welcome back, ' . $dummyUser['firstname'] . '!');
+        if (!$customer) {
+            return back()->withErrors(['loginError' => 'Invalid credentials or inactive account.']);
+        }
+
+        // Store logged in customer in session
+        session(['logged_in_user' => [
+            'customerID' => $customer->customerID,
+            'firstname' => $customer->firstName,
+            'lastname'  => $customer->lastName,
+            'username'  => $customer->username,
+        ]]);
+
+        return redirect()->route('home')
+                         ->with('success', 'Welcome back, ' . $customer->firstName . '!');
     }
 
     // Handle logout
