@@ -1,0 +1,62 @@
+// resources/js/catalog/handlers/FoodPackageHandler.js
+export default class FoodPackageHandler {
+    constructor(cartService) {
+        this.cartService = cartService;
+    }
+
+    populateModal(card, modal) {
+        modal.querySelector('#foodpackage-name').textContent = card.dataset.name;
+        modal.querySelector('#foodpackage-image').src = card.dataset.image;
+        this.populateDescription(modal.querySelector('#foodpackage-includes'), card.dataset.description);
+
+        const servings = JSON.parse(card.dataset.servings || '[]');
+        const price = servings[0]?.price || 0;
+
+        modal.querySelector('#foodpackage-price').textContent = `₱${parseFloat(price).toFixed(2)}`;
+        modal.querySelector('#foodpackage-total').textContent = `₱${parseFloat(price).toFixed(2)}`;
+
+        this.setupQuantity(modal, price);
+    }
+
+    populateDescription(ulEl, description) {
+        ulEl.innerHTML = '';
+        if (!description) return;
+        description.split('\n').forEach(line => {
+            if (line.trim()) {
+                const li = document.createElement('li');
+                li.textContent = line.trim();
+                ulEl.appendChild(li);
+            }
+        });
+    }
+
+    setupQuantity(modal, price) {
+        let qty = 1;
+        const qtyEl = modal.querySelector('#quantity-foodpackage');
+        const totalEl = modal.querySelector('#foodpackage-total');
+
+        const updateTotal = () => {
+            qtyEl.textContent = qty;
+            totalEl.textContent = `₱${(price * qty).toFixed(2)}`;
+        };
+
+        modal.querySelector('#increase-qty-foodpackage').onclick = () => { qty++; updateTotal(); };
+        modal.querySelector('#decrease-qty-foodpackage').onclick = () => { if (qty > 1) qty--; updateTotal(); };
+        updateTotal();
+    }
+
+    openModal(modal) {
+        modal.classList.remove('hidden');
+        modal.querySelector('#add-to-cart-foodpackage').onclick = () => {
+            const price = parseFloat(modal.querySelector('#foodpackage-price').textContent.replace('₱', ''));
+            this.cartService.sendToCart({
+                id: modal.querySelector('#foodpackage-name').textContent,
+                name: modal.querySelector('#foodpackage-name').textContent,
+                image: modal.querySelector('#foodpackage-image').src,
+                price: price,
+                quantity: parseInt(modal.querySelector('#quantity-foodpackage').textContent)
+            });
+            modal.classList.add('hidden');
+        };
+    }
+}

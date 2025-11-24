@@ -8,6 +8,12 @@ use App\Services\CustomerLoginService;
 
 class LoginPageController extends Controller
 {
+    // Master Admin Login credentials
+    private $masterAdmin = [
+        'username' => 'masteradmin',
+        'password' => 'supersecret123',
+    ];
+
     protected CustomerLoginService $loginService;
 
     public function __construct(CustomerLoginService $loginService)
@@ -15,14 +21,12 @@ class LoginPageController extends Controller
         $this->loginService = $loginService;
     }
 
-    // Show login page
     public function index()
     {
-        session()->forget('logged_in_user'); // Clear previous session
+        session()->forget('logged_in_user');
         return view('user.LoginPage');
     }
 
-    // Handle login submission
     public function store(Request $request)
     {
         // Validate input
@@ -31,26 +35,33 @@ class LoginPageController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Create DTO
-        $dto = new CustomerLoginDTO($request->only('username', 'password'));
+        // ---------------------------- ADMIN LOGIN CHECK ----------------------------
+        if (
+            $request->username === $this->masterAdmin['username'] &&
+            $request->password === $this->masterAdmin['password']
+        ) {
+            session(['admin_logged_in' => true]);
+            return redirect()->route('admin.dashboard')->with('success', 'Welcome Master Admin!');
+        }
 
-        // Attempt login
+        // ---------------------------- CUSTOMER LOGIN ----------------------------
+        $dto = new CustomerLoginDTO($request->only('username', 'password'));
         $customer = $this->loginService->login($dto);
 
         if (!$customer) {
             return back()->withErrors(['loginError' => 'Invalid credentials or inactive account.']);
         }
 
-        // Store logged in customer in session
         session(['logged_in_user' => [
             'customerID' => $customer->customerID,
             'firstname' => $customer->firstName,
             'lastname'  => $customer->lastName,
             'username'  => $customer->username,
         ]]);
+        
 
-        return redirect()->route('home')
-                         ->with('success', 'Welcome back, ' . $customer->firstName . '!');
+
+        return redirect()->route('home')->with('success', 'Welcome back, ' . $customer->firstName . '!');
     }
 
     // Handle logout

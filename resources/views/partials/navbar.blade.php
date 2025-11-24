@@ -17,8 +17,9 @@
             @php $user = session('logged_in_user'); @endphp
 
             <a href="{{ route('paluwagan') }}" class="relative text-black hover:text-gray-900 font-medium after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-[2px] after:bg-red-700 after:transition-all hover:after:w-full">
-               Paluwagan
-            </a>
+   Paluwagan
+</a>
+
 
             @if($user)
                 <a href="{{ route('orders.index') }}" class="relative text-black hover:text-gray-900 font-medium after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-[2px] after:bg-red-700 after:transition-all hover:after:w-full">

@@ -23,14 +23,13 @@
             </div>
 
             @if(count($cart) > 0)
-                @foreach($cart as $item)
+                @foreach($cart as $key => $item)
                     <div class="flex items-center justify-between bg-[#FFF8F8] p-4 mb-4 rounded-lg shadow-sm">
                         <div class="flex items-center gap-4">
                             <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-24 h-24 object-cover rounded-lg">
                             <div>
                                 <h3 class="font-semibold">{{ $item['name'] }}</h3>
-                                <p class="text-gray-500 text-sm">Cake</p>
-                                <button class="mt-2 bg-[#F9B3B0] hover:bg-[#F69491] text-white text-xs px-3 py-1 rounded">Customize</button>
+                                <p class="text-gray-500 text-sm">{{ $item['productType'] ?? '' }}</p>
                             </div>
                         </div>
 
@@ -38,7 +37,7 @@
                             {{-- Quantity --}}
                             <form method="POST" action="{{ route('cart.update') }}" class="flex items-center gap-2">
                                 @csrf
-                                <input type="hidden" name="id" value="{{ $item['id'] }}">
+                                <input type="hidden" name="id" value="{{ $key }}">
                                 <button name="action" value="decrease" class="text-gray-600 bg-gray-200 rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-300">−</button>
                                 <span class="font-medium w-5 text-center">{{ $item['quantity'] }}</span>
                                 <button name="action" value="increase" class="text-gray-600 bg-gray-200 rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-300">+</button>
@@ -53,7 +52,7 @@
                             {{-- Delete --}}
                             <form method="POST" action="{{ route('cart.remove') }}">
                                 @csrf
-                                <input type="hidden" name="id" value="{{ $item['id'] }}">
+                                <input type="hidden" name="id" value="{{ $key }}">
                                 <button class="text-gray-400 hover:text-red-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

@@ -59,7 +59,7 @@
         </div>
 
         <div class="flex justify-end gap-3 mt-4">
-            <button id="add-to-cart-cake" class="bg-[#F9B3B0] hover:bg-[#F69491] text-white px-5 py-2 rounded-lg font-semibold transition">Add to Cart</button>
+            <button id="add-to-cart-cake" class="bg-[#FF1493] hover:bg-[#FF69B4] text-white px-5 py-2 rounded-lg font-semibold transition">Add to Cart</button>
         </div>
 
     </div>

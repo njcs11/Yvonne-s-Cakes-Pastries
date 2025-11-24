@@ -45,7 +45,7 @@
         </div>
 
         <!-- RIGHT SIDE -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
 
             <!-- QUICK LINKS -->
             <div>

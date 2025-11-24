@@ -23,11 +23,10 @@ class CatalogPageController extends Controller
                 'serving.price'
             )
             ->get()
-            ->groupBy('productID') // group by product
+            ->groupBy('productID') 
             ->map(function ($group) {
                 $first = $group->first();
 
-                // Collect all serving options for this product (or empty array if none)
                 $servings = $group->isEmpty()
                     ? []
                     : $group->map(function ($g) {
@@ -46,10 +45,49 @@ class CatalogPageController extends Controller
                         : [],
                     'imageURL' => $first->imageURL,
                     'productType' => strtolower(str_replace(' ', '', $first->productType)),
-                    'servings' => $servings
+                    'servings' => $servings ?? []
                 ];
             })->values();
 
-        return view('user.CatalogPage', compact('products'));
+        // Fetch paluwagan packages
+        $paluwaganPackages = DB::table('paluwaganpackage')
+            ->select(
+                'packageID as id',
+                'packageName as name',
+                'description',
+                'totalAmount',
+                'durationMonths',
+                'monthlyPayment',
+                'image',
+                DB::raw("'paluwagan' as productType")
+            )
+            ->get()
+            ->map(function ($pkg) {
+                return [
+                    'id' => $pkg->id,
+                    'name' => $pkg->name,
+                    'description' => $pkg->description,
+                    'descriptionList' => $pkg->description
+                        ? array_filter(array_map('trim', explode("\n", $pkg->description)))
+                        : [],
+                    'imageURL' => 'images/' . $pkg->image,  
+                    'productType' => 'paluwagan',
+                    'totalAmount' => $pkg->totalAmount,
+                    'durationMonths' => $pkg->durationMonths,
+                    'monthlyPayment' => $pkg->durationMonths > 0
+                        ? $pkg->totalAmount / $pkg->durationMonths
+                        : $pkg->totalAmount,
+                    'servings' => [
+                        [
+                            'size' => (int)$pkg->durationMonths, // ensure numeric
+                            'price' => $pkg->totalAmount
+                        ]
+                    ]
+                ];
+            });
+
+        $allProducts = $products->merge($paluwaganPackages);
+
+        return view('user.CatalogPage', ['products' => $allProducts]);
     }
 }

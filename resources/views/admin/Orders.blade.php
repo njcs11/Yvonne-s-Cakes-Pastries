@@ -1,0 +1,75 @@
+@extends('layouts.admin')
+
+@section('title', 'Order Management')
+
+@section('content')
+<div class="px-10 py-6">
+
+    {{-- Page Title --}}
+    <h1 class="text-4xl font-bold text-gray-800">Order Management</h1>
+    <p class="text-gray-500 mt-1">Manage and track all customer orders</p>
+
+    {{-- Filters --}}
+    <div class="mt-6 bg-white border border-pink-200 rounded-xl p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+            {{-- Search Bar --}}
+            <div class="relative w-full lg:w-1/3">
+                <input
+                    type="text"
+                    placeholder="Search by order ID"
+                    class="w-full border border-pink-200 rounded-lg py-2 pl-10 pr-3 focus:ring-pink-300 focus:outline-none"
+                >
+                <span class="absolute left-3 top-2.5 text-gray-400">
+                    🔍
+                </span>
+            </div>
+
+            {{-- Status Buttons --}}
+            <div class="flex gap-2">
+                <button class="px-5 py-2 bg-black text-white rounded-lg">All (0)</button>
+                <button class="px-5 py-2 border border-pink-300 rounded-lg text-gray-700">Pending (0)</button>
+                <button class="px-5 py-2 border border-pink-300 rounded-lg text-gray-700">Accepted (0)</button>
+                <button class="px-5 py-2 border border-pink-300 rounded-lg text-gray-700">In Progress (0)</button>
+                <button class="px-5 py-2 border border-pink-300 rounded-lg text-gray-700">Done (0)</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Orders Table --}}
+    <div class="mt-6 bg-white border border-pink-200 rounded-xl p-6">
+        <h2 class="text-xl font-semibold text-gray-700">Orders</h2>
+        <p class="text-gray-500">0 orders found</p>
+
+        <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full border-collapse">
+                <thead>
+                    <tr class="border-b text-left text-gray-600">
+                        <th class="py-3 px-4">Order ID</th>
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Quantity</th>
+                        <th class="py-3 px-4">Delivery Date</th>
+                        <th class="py-3 px-4">Payment</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4">Total</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-gray-700">
+                    {{-- Empty State --}}
+                    <tr>
+                        <td colspan="8" class="py-10 text-center text-gray-400">
+                            <div class="flex flex-col items-center">
+                                <span class="text-4xl mb-2">📄</span>
+                                No orders found
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+@endsection

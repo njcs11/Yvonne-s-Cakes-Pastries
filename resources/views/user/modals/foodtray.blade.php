@@ -44,7 +44,7 @@
         <!-- Actions -->
         <div class="flex justify-end gap-3">
             <button id="add-to-cart-foodtray"
-                    class="bg-[#F9B3B0] hover:bg-[#F69491] text-white px-5 py-2 rounded-lg font-semibold transition">
+                    class="bg-[#FF1493] hover:bg-[#FF69B4] text-white px-5 py-2 rounded-lg font-semibold transition">
                     Add to Cart</button>
         </div>
 

@@ -18,11 +18,11 @@
 
             @php
                 $categories = [
-                    ['name' => 'Paluwagan', 'image' => '/images/paluwagan.jpg'],
-                    ['name' => 'Food Package', 'image' => '/images/food-package.jpg'],
-                    ['name' => 'Food Tray', 'image' => '/images/food-tray.jpg'],
-                    ['name' => 'Cake', 'image' => '/images/choco-cake.jpg'],
-                    ['name' => 'Cupcake', 'image' => '/images/vanilla-cupcake.jpg'],
+                    ['name' => 'Paluwagan', 'image' => '/images/paluwaganA.jpg'],
+                    ['name' => 'Food Package', 'image' => '/images/packageA.jpg'],
+                    ['name' => 'Food Tray', 'image' => '/images/foodtrayA.jpg'],
+                    ['name' => 'Cake', 'image' => '/images/cakeA.jpg'],
+                    ['name' => 'Cupcake', 'image' => '/images/cupcakeA.jpg'],
                 ];
             @endphp
 
@@ -32,7 +32,7 @@
                         <button 
                             class="category-btn flex flex-col items-center text-center bg-white rounded-xl shadow-md hover:shadow-lg hover:bg-[#FFEFEA] transition p-3"
                             data-category="{{ strtolower(str_replace(' ', '', $category['name'])) }}">
-                            <img src="{{ $category['image'] }}" alt="{{ $category['name'] }}" class="w-20 h-20 rounded-lg object-cover mb-2">
+                            <img src="{{ asset($category['image']) }}" alt="{{ $category['name'] }}" class="w-20 h-20 rounded-lg object-cover mb-2">
                             <span class="font-semibold text-gray-700 text-sm">{{ $category['name'] }}</span>
                         </button>
                     @endforeach
@@ -44,16 +44,21 @@
         <main class="flex-1 overflow-y-auto px-8 py-6 bg-[#FFF8F5]" style="padding-bottom: 100px;" id="catalog-section">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
-                {{-- Loop regular products --}}
+                {{-- Loop regular + paluwagan products --}}
                 @foreach ($products as $product)
                     <div class="product-card bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 cursor-pointer"
                         data-category="{{ $product['productType'] }}"
                         data-name="{{ $product['name'] }}"
                         data-description="{{ $product['description'] }}"
-                        data-image="{{ $product['imageURL'] }}"
-                        data-servings='@json($product['servings'])'>
+                        data-image="{{ asset($product['imageURL']) }}"
+                        data-servings='@json($product['servings'])'
+                        data-price="{{ $product['servings'][0]['price'] ?? 0 }}"
+                        data-total="{{ $product['totalAmount'] ?? '' }}"
+                        data-monthly="{{ $product['monthlyPayment'] ?? '' }}"
+                        data-duration="{{ $product['durationMonths'] ?? '' }}"
+                    >
                         
-                        <img src="{{ $product['imageURL'] }}" alt="{{ $product['name'] }}" class="rounded-lg mb-4 w-full h-40 object-cover">
+                        <img src="{{ asset($product['imageURL']) }}" alt="{{ $product['name'] }}" class="rounded-lg mb-4 w-full h-40 object-cover">
                         <h3 class="text-lg font-semibold mb-1">{{ $product['name'] }}</h3>
                         <ul class="list-disc ml-6 text-gray-500 mb-2">
                             @foreach(explode("\n", $product['description']) as $item)
@@ -77,7 +82,8 @@
                     data-servings='[
                         {"price":400,"size":"6 inch","flavor":"Chocolate","shape":"Round","icing":"White"},
                         {"price":450,"size":"8 inch","flavor":"Vanilla","shape":"Heart","icing":"Pink"}
-                    ]'>
+                    ]'
+                    data-price="400">
                     <h3 class="text-lg font-semibold mb-2">Cake Customization</h3>
                     <p class="text-gray-600 text-sm">Customize your cake: choose size, flavor, shape, icing, and add a personalized message.</p>
                 </div>
@@ -90,7 +96,8 @@
                     data-servings='[
                         {"price":50,"flavor":"Chocolate","icing":"Pink"},
                         {"price":55,"flavor":"Vanilla","icing":"White"}
-                    ]'>
+                    ]'
+                    data-price="50">
                     <h3 class="text-lg font-semibold mb-2">Cupcake Customization</h3>
                     <p class="text-gray-600 text-sm">Customize your cupcakes: select flavor and icing.</p>
                 </div>
@@ -112,11 +119,18 @@
 
         <div>
             <a href="{{ route('checkout') }}"
-                class="bg-[#F9B3B0] hover:bg-[#F69491] text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-200">
+                class="bg-[#FF1493] hover:bg-[#FF69B4] text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-200">
                 Order and Pay
             </a>
         </div>
     </div>
+
+    {{-- Success message --}}
+    @if(session('success'))
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        {{ session('success') }}
+    </div>
+@endif
 
     {{-- Include all modals --}}
     @include('user.modals.foodtray')

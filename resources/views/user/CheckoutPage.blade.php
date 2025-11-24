@@ -24,6 +24,9 @@
             {{-- LEFT: Delivery & Payment --}}
             <div class="lg:col-span-2 bg-white rounded-lg shadow p-6 border border-gray-200">
 
+             <form action="{{ route('checkout.placeOrder') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    
                 {{-- Delivery Information --}}
                 <div class="mb-8">
                     <h2 class="font-semibold mb-1">Delivery Information</h2>
@@ -34,8 +37,9 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">Delivery Date</label>
-                            <input type="date"
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+                            <input type="date" name="deliveryDate"
+       class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Delivery Time</label>
@@ -49,14 +53,16 @@
 
                     <div class="mt-4">
                         <label class="block text-sm font-medium mb-1">Complete Delivery Address</label>
-                        <input type="text" placeholder="Enter delivery address"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+                        <input type="text" name="deliveryAddress" placeholder="Enter delivery address"
+       class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+
                     </div>
 
                     <div class="mt-4">
                         <label class="block text-sm font-medium mb-1">Message for Admin (Optional)</label>
-                        <textarea rows="3" maxlength="200" placeholder="Any special instructions or notes for your order..."
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]"></textarea>
+                       <input type="text" name="remarks" rows="3" maxlength="200" placeholder="Any special instructions or notes for your order..."
+          class="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#F9B3B0]"></input>
+
                         <p class="text-xs text-gray-400 mt-1 text-right">0/200 Characters</p>
                     </div>
                 </div>
@@ -85,8 +91,9 @@
 
                         <div class="mt-3">
                             <label class="font-medium block mb-1">Upload Proof of Payment</label>
-                            <input type="file"
-                                   class="w-full text-sm border border-gray-300 rounded-md px-2 py-2 bg-white outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+                           <input type="file" name="paymentProof"
+       class="w-full text-sm border border-gray-300 rounded-md px-2 py-2 bg-white outline-none focus:ring-2 focus:ring-[#F9B3B0]">
+
                         </div>
                     </div>
 
@@ -101,7 +108,7 @@
 
             {{-- RIGHT: Order Summary --}}
             <div class="bg-white rounded-lg shadow p-6 border border-gray-200 h-fit">
-                <h2 class="text-lg font-semibold text-center bg-[#F9B3B0] text-white py-2 rounded">Order Summary</h2>
+                <h2 class="text-lg font-semibold text-center bg-[#FF69B4] text-white py-2 rounded">Order Summary</h2>
 
                 <div class="mt-4 text-sm divide-y divide-gray-200">
                     @foreach($cart as $item)
@@ -125,10 +132,9 @@
                 </div>
 
                 {{-- Place Order --}}
-                <form action="{{ route('checkout.placeOrder') }}" method="POST">
-                    @csrf
+               
                     <button type="submit"
-                            class="w-full mt-6 bg-[#F9B3B0] hover:bg-[#F69491] text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-200">
+                            class="w-full mt-6 bg-[#FF1493] hover:bg-[#FF69B4] text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-200">
                         Place Order
                     </button>
                 </form>

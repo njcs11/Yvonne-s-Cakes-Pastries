@@ -89,7 +89,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Live password confirmation check (Step 3)
+    // Live username check (Step 3)
+    const usernameField = document.querySelector('input[name="username"]');
+    const usernameError = document.querySelector('#username-error');
+
+    let usernameValid = false; // <-- added
+
+    if (usernameField) {
+        usernameField.addEventListener('input', () => {
+            const username = usernameField.value;
+
+            if (username.length > 3) {
+                fetch('/check-username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ username })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        usernameField.classList.add('border-red-500');
+                        usernameError.classList.remove('hidden');
+                        usernameValid = false;
+                    } else {
+                        usernameField.classList.remove('border-red-500');
+                        usernameError.classList.add('hidden');
+                        usernameValid = true;
+                    }
+                });
+            } else {
+                usernameField.classList.add('border-red-500');
+                usernameError.classList.remove('hidden');
+                usernameValid = false;
+            }
+        });
+    }
+
+    // Step 3 live password match check
     const step3 = steps[2];
     if (step3) {
         const password = step3.querySelector('input[name="password"]');
@@ -121,10 +160,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Step 3 submit
     const form = document.getElementById('registerForm');
     form.addEventListener('submit', (e) => {
-        if (!validateStep(2)) {
+        const passOK = validateStep(2);
+
+        if (!passOK || usernameValid === false) {
             e.preventDefault();
-            const confirmPassword = step3.querySelector('input[name="password_confirmation"]');
-            confirmPassword.focus();
+
+            if (usernameValid === false) {
+                usernameField.focus();
+                usernameField.classList.add('border-red-500');
+                usernameError.classList.remove('hidden');
+            }
+
+            return;
         }
     });
 });

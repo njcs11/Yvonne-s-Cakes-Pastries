@@ -1,45 +1,57 @@
 <?php
-
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
-use App\Services\CustomerService;
 use App\DTO\CustomerDTO;
+use App\Services\CustomerService;
+use App\Models\Customer;
+
 
 class RegisterPageController extends Controller
 {
-    protected CustomerService $customerService;
+protected CustomerService $customerService;
+
 
     public function __construct(CustomerService $customerService)
     {
         $this->customerService = $customerService;
     }
 
+
     public function show()
     {
         return view('user.RegisterPage');
     }
 
+
     public function store(Request $request)
     {
-        // Step 1 & 2 & 3 validation
-            $validated = $request->validate([
-        'firstname'  => 'required|string|max:255',
-        'lastname'   => 'required|string|max:255',
-        'midInitial' => 'nullable|string|max:5',
-        'address'    => 'required|string|max:255',
-        'number'     => 'required|string|max:255',
-        'email'      => 'required|email|max:255|unique:customer,email',
-        'username'   => 'required|string|max:255|unique:customer,username',
-        'password'   => 'required|string|min:8|confirmed',
-    ]);
+        $request->validate([
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
+            'mi' => 'nullable|string|max:5',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|unique:customer,email',
+            'address' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:customer,username',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
 
-        $customerDTO = new CustomerDTO($validated);
-        $customer = $this->customerService->register($customerDTO);
+        $customerDTO = new CustomerDTO($request->all());
 
-        session(['logged_in_customer' => $customer]);
 
-        return redirect()->route('login')->with('success', 'Account created successfully! You can now log in.');
+        $this->customerService->register($customerDTO);
+
+
+        return redirect()->route('login')->with('success', 'Account created successfully!');
+    }
+
+
+    public function checkUsername(Request $request)
+    {
+        $exists = Customer::where('username', $request->username)->exists();
+        return response()->json(['exists' => $exists]);
     }
 }
