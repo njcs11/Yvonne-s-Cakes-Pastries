@@ -21,4 +21,9 @@ class User extends Model
     {
         return $this->belongsTo(Role::class, 'roleID', 'roleID');
     }
+<<<<<<< Updated upstream
 }
+=======
+}
+
+>>>>>>> Stashed changes

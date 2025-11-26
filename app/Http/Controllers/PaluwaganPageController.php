@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PaluwaganService;
+use Illuminate\Http\Request;
+use App\Repositories\PaluwaganRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 
 class PaluwaganPageController extends Controller
 {
-    private $paluwaganService;
+    protected $repo;
 
-    public function __construct(PaluwaganService $paluwaganService)
+    public function __construct(PaluwaganRepositoryInterface $repo)
     {
-        $this->paluwaganService = $paluwaganService;
+        $this->repo = $repo;
     }
 
     public function index()
     {
-        // Get the customer ID
-        $customerID = session('logged_in_user.customerID');
+        $customerID = Auth::id();
 
-
-        // Ensure the user is authenticated
+        // If user not logged in, redirect to login
         if (!$customerID) {
-            return redirect()->route('login')->with('error', 'You must be logged in to access Paluwagan.');
+            return redirect()->route('login');
         }
 
-        // Fetch paluwagan entries for the user
-        $orders = $this->paluwaganService->getUserPaluwaganEntries($customerID);
+        // Get all paluwagan orders for this customer
+        $orders = $this->repo->getPackagesByCustomer($customerID);
 
-        return view('user.PaluwaganPage', compact('orders'));
+        return view('user.paluwaganpage', [
+            'orders' => $orders
+        ]);
     }
 
     public function join(Request $request)
@@ -39,24 +40,19 @@ class PaluwaganPageController extends Controller
             'packageID' => 'required|integer',
         ]);
 
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Login required'], 401);
+        }
+
         $customerID = Auth::id();
+        $packageID = $request->packageID;
 
-        if (!$customerID) {
-            return response()->json(['error' => 'You must be logged in to join paluwagan.'], 401);
+        $result = $this->repo->joinPackage($customerID, $packageID);
+
+        if (!$result) {
+            return response()->json(['error' => 'Already joined this package']);
         }
 
-        try {
-            $this->paluwaganService->joinPaluwagan($customerID, $request->packageID);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 409);
-        }
-
-        return response()->json(['success' => true, 'message' => 'Successfully joined the paluwagan!']);
-    }
-
-    // Optional: stub for enroll if route exists
-    public function enroll(Request $request)
-    {
-        return response()->json(['error' => 'Not implemented'], 501);
+        return response()->json(['success' => true, 'message' => 'Successfully joined Paluwagan']);
     }
 }

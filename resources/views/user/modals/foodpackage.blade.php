@@ -1,4 +1,4 @@
-    <div id="foodpackage-modal"
+<div id="foodpackage-modal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
 
         <div class="bg-white rounded-2xl p-6 max-w-lg w-full relative overflow-y-auto max-h-[90vh]">

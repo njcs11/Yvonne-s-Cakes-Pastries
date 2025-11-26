@@ -15,8 +15,13 @@
     {{-- Header --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
         <div>
+<<<<<<< Updated upstream
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">User Management</h1>
             <p class="text-gray-500 text-sm md:text-base">{{ $users->total() }} registered users</p>
+=======
+            <h1 class="text-4xl font-bold text-gray-800">User Management</h1>
+            <p class="text-gray-500">{{ $users->total() }} registered users</p>
+>>>>>>> Stashed changes
         </div>
 
         <button 
@@ -28,15 +33,20 @@
 
     {{-- Search Bar --}}
     <div class="mt-6">
-        <input 
-            type="text"
-            placeholder="Search users by name, email, or username..."
-            class="w-full border border-pink-200 rounded-lg py-2 px-4 focus:ring-pink-300 focus:outline-none"
-        >
+        <form method="GET" action="{{ route('admin.users') }}">
+            <input 
+                type="text"
+                name="search"
+                value="{{ $search ?? '' }}"
+                placeholder="Search users by name or username..."
+                class="w-full border border-pink-200 rounded-lg py-2 px-4 focus:ring-pink-300 focus:outline-none"
+            >
+        </form>
     </div>
 
     {{-- Users List --}}
     <div class="mt-6 space-y-4">
+<<<<<<< Updated upstream
         @forelse($users as $u)
             <div class="bg-white border border-pink-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
@@ -49,15 +59,36 @@
                 <button 
                     @click="showDetails = true; user = {{ $u->toJson() }}"
                     class="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100 w-full md:w-auto">
+=======
+        @forelse($users as $user)
+            <div class="bg-white border border-pink-200 rounded-xl p-4 flex items-center justify-between">
+                <div class="flex gap-4">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ $user->username }}</p>
+                        <p class="text-gray-600">User ID: {{ $user->userID }}</p>
+                        <p class="text-gray-600">Role ID: {{ $user->roleID }}</p>
+                        <p class="text-gray-600">Status: {{ $user->status == 1 ? 'Active' : 'Inactive' }}</p>
+                    </div>
+                </div>
+
+                <button 
+                    @click="showDetails = true; user = {{ $user->toJson() }}"
+                    class="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100">
+>>>>>>> Stashed changes
                     View Details
                 </button>
             </div>
         @empty
+<<<<<<< Updated upstream
             <p class="text-gray-500">No users yet.</p>
+=======
+            <p class="text-gray-500">No users found.</p>
+>>>>>>> Stashed changes
         @endforelse
 
         {{-- Pagination --}}
         <div class="mt-4">
+<<<<<<< Updated upstream
             {{ $users->links() }}
         </div>
     </div>
@@ -130,20 +161,46 @@
     </div>
 
     {{-- ADD ADMIN MODAL --}}
+=======
+            {{ $users->withQueryString()->links() }}
+        </div>
+    </div>
+
+    <!-- ADD ADMIN MODAL -->
+>>>>>>> Stashed changes
     <div 
         x-show="showAdd"
         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3"
         x-cloak
     >
+<<<<<<< Updated upstream
         <div class="bg-white rounded-xl w-full md:w-[700px] p-6 relative">
+=======
+        <div class="bg-white rounded-xl w-[700px] p-6 relative">
+>>>>>>> Stashed changes
             <button 
                 @click="showAdd = false"
                 class="absolute top-3 right-3 text-gray-500 hover:text-black">
                 ✕
             </button>
 
+<<<<<<< Updated upstream
             <h2 class="text-xl md:text-2xl font-semibold">Add Admin</h2>
             <p class="text-gray-500 mb-6 text-sm md:text-base">Please fill in input fields</p>
+=======
+            <h2 class="text-2xl font-semibold">Add Admin</h2>
+            <p class="text-gray-500 mb-6">Fill in the details below</p>
+
+            @if ($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+>>>>>>> Stashed changes
 
             @if ($errors->any())
                 <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
@@ -197,6 +254,33 @@
                     </button>
                 </div>
             </form>
+<<<<<<< Updated upstream
+=======
+        </div>
+    </div>
+
+    <!-- USER DETAILS MODAL -->
+    <div 
+        x-show="showDetails"
+        class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+        x-cloak
+    >
+        <div class="bg-white rounded-xl w-[600px] p-6 relative">
+            <button 
+                @click="showDetails = false"
+                class="absolute top-3 right-3 text-gray-500 hover:text-black">
+                ✕
+            </button>
+
+            <h2 class="text-2xl font-semibold mb-4">User Details</h2>
+
+            <div class="space-y-2">
+                <p><strong>Username:</strong> <span x-text="user.username"></span></p>
+                <p><strong>User ID:</strong> <span x-text="user.userID"></span></p>
+                <p><strong>Role ID:</strong> <span x-text="user.roleID"></span></p>
+                <p><strong>Status:</strong> <span x-text="user.status == 1 ? 'Active' : 'Inactive'"></span></p>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </div>
 

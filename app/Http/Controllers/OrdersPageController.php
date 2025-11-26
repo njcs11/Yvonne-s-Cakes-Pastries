@@ -14,8 +14,15 @@ class OrdersPageController extends Controller
 
     public function index()
     {
-        $userID = Auth::id();
 
+ $customer = session('logged_in_user');
+
+    if (!$customer) {
+        return redirect()->route('login')->with('error', 'Please log in to view your orders.');
+    }
+
+    $userID = $customer['customerID'];
+    
         // Get all orders of the logged-in user with their items & products
         $orders = Order::where('customerID', $userID)
             ->with(['orderItems.product'])

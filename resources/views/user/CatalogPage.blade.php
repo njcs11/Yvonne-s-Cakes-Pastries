@@ -47,11 +47,12 @@
                 {{-- Loop regular + paluwagan products --}}
                 @foreach ($products as $product)
                     <div class="product-card bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 cursor-pointer"
-                        data-category="{{ $product['productType'] }}"
-                        data-name="{{ $product['name'] }}"
-                        data-description="{{ $product['description'] }}"
-                        data-image="{{ asset($product['imageURL']) }}"
-                        data-servings='@json($product['servings'])'
+                        data-id="{{ $product['id'] ?? '' }}"
+                        data-category="{{ $product['productType'] ?? '' }}"
+                        data-name="{{ $product['name'] ?? '' }}"
+                        data-description="{{ $product['description'] ?? '' }}"
+                        data-image="{{ asset($product['imageURL'] ?? '') }}"
+                        data-servings='@json($product['servings'] ?? [])'
                         data-price="{{ $product['servings'][0]['price'] ?? 0 }}"
                         data-total="{{ $product['totalAmount'] ?? '' }}"
                         data-monthly="{{ $product['monthlyPayment'] ?? '' }}"
@@ -61,7 +62,7 @@
                         <img src="{{ asset($product['imageURL']) }}" alt="{{ $product['name'] }}" class="rounded-lg mb-4 w-full h-40 object-cover">
                         <h3 class="text-lg font-semibold mb-1">{{ $product['name'] }}</h3>
                         <ul class="list-disc ml-6 text-gray-500 mb-2">
-                            @foreach(explode("\n", $product['description']) as $item)
+                            @foreach(explode("\n", $product['description'] ?? '') as $item)
                                 @if(trim($item) !== '')
                                     <li>{{ $item }}</li>
                                 @endif
@@ -130,7 +131,7 @@
     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
         {{ session('success') }}
     </div>
-@endif
+    @endif
 
     {{-- Include all modals --}}
     @include('user.modals.foodtray')
@@ -140,6 +141,39 @@
     @include('user.modals.paluwagan')
 
 </div>
+
+{{-- Catalog → open paluwagan modal when paluwagan card is clicked --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function (e) {
+            // If card is paluwagan, open paluwagan modal with package data
+            const category = (this.dataset.category || '').toLowerCase();
+
+            if (category === 'paluwagan') {
+                const pkg = {
+                    id: this.dataset.id || this.getAttribute('data-id'),
+                    name: this.dataset.name || this.getAttribute('data-name'),
+                    imageURL: this.dataset.image || this.getAttribute('data-image'),
+                    descriptionList: ((this.dataset.description || this.getAttribute('data-description') || '').split('\n')).map(s => s.trim()).filter(Boolean),
+                    servings: (() => {
+                        try { return JSON.parse(this.dataset.servings || this.getAttribute('data-servings') || '[]'); } catch (err) { return []; }
+                    })(),
+                    totalAmount: parseFloat(this.dataset.total || this.getAttribute('data-total') || 0) || 0,
+                    durationMonths: parseInt(this.dataset.duration || this.getAttribute('data-duration') || 1) || 1,
+                    monthlyPayment: parseFloat(this.dataset.monthly || this.getAttribute('data-monthly') || 0) || 0
+                };
+
+                if (typeof window.openPaluwaganModal === 'function') {
+                    window.openPaluwaganModal(pkg);
+                } else {
+                    console.error('openPaluwaganModal not found (ensure paluwagan modal partial is included).');
+                }
+            }
+        });
+    });
+});
+</script>
 
 @vite(['resources/js/catalogfilter.js'])
 @endsection

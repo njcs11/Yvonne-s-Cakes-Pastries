@@ -6,26 +6,20 @@ use App\Repositories\PaluwaganRepositoryInterface;
 
 class PaluwaganService
 {
-    private $repository;
+    protected $repo;
 
-    public function __construct(PaluwaganRepositoryInterface $repository)
+    public function __construct(PaluwaganRepositoryInterface $repo)
     {
-        $this->repository = $repository;
+        $this->repo = $repo;
     }
 
     public function getUserPaluwaganEntries(int $customerID)
     {
-        return $this->repository->getUserEntries($customerID);
+        return $repo->getUserEntries($customerID);
     }
 
     public function joinPaluwagan(int $customerID, int $packageID)
     {
-        $joined = $this->repository->joinPackage($customerID, $packageID);
-
-        if (!$joined) {
-            throw new \Exception("You have already joined this package.");
-        }
-
-        return $joined;
+        return $this->repo->joinPackage($customerID, $packageID);
     }
 }

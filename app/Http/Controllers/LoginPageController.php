@@ -28,41 +28,46 @@ class LoginPageController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validate input
-        $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    // Validate input
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        // ---------------------------- ADMIN LOGIN CHECK ----------------------------
-        if (
-            $request->username === $this->masterAdmin['username'] &&
-            $request->password === $this->masterAdmin['password']
-        ) {
-            session(['admin_logged_in' => true]);
-            return redirect()->route('admin.dashboard')->with('success', 'Welcome Master Admin!');
-        }
+    // ---------------------------- ADMIN LOGIN CHECK ----------------------------
+    if (
+        $request->username === $this->masterAdmin['username'] &&
+        $request->password === $this->masterAdmin['password']
+    ) {
+        // Regenerate session for admin too
+        $request->session()->regenerate();
 
-        // ---------------------------- CUSTOMER LOGIN ----------------------------
-        $dto = new CustomerLoginDTO($request->only('username', 'password'));
-        $customer = $this->loginService->login($dto);
-
-        if (!$customer) {
-            return back()->withErrors(['loginError' => 'Invalid credentials or inactive account.']);
-        }
-
-        session(['logged_in_user' => [
-            'customerID' => $customer->customerID,
-            'firstname' => $customer->firstName,
-            'lastname'  => $customer->lastName,
-            'username'  => $customer->username,
-        ]]);
-        
-
-
-        return redirect()->route('home')->with('success', 'Welcome back, ' . $customer->firstName . '!');
+        session(['admin_logged_in' => true]);
+        return redirect()->route('admin.dashboard')->with('success', 'Welcome Master Admin!');
     }
+
+    // ---------------------------- CUSTOMER LOGIN ----------------------------
+    $dto = new CustomerLoginDTO($request->only('username', 'password'));
+    $customer = $this->loginService->login($dto);
+
+    if (!$customer) {
+        return back()->withErrors(['loginError' => 'Invalid credentials or inactive account.']);
+    }
+
+    // 🟢 FIX: Regenerate session ID so cart won't be shared
+    $request->session()->regenerate();
+
+    session(['logged_in_user' => [
+        'customerID' => $customer->customerID,
+        'firstname'  => $customer->firstName,
+        'lastname'   => $customer->lastName,
+        'username'   => $customer->username,
+    ]]);
+
+    return redirect()->route('home')->with('success', 'Welcome back, ' . $customer->firstName . '!');
+}
+
 
     // Handle logout
     public function logout(Request $request)

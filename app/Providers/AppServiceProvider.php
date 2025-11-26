@@ -7,13 +7,9 @@ use App\Repositories\PaluwaganRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
     public function register()
     {
+        // Keep only unrelated bindings
         $this->app->bind(PaluwaganRepositoryInterface::class, PaluwaganRepository::class);
 
         $this->app->bind(
@@ -38,11 +34,6 @@ class AppServiceProvider extends ServiceProvider
     );
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
     public function boot()
     {
         //
