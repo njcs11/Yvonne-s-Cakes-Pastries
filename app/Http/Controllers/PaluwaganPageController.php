@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\PaluwaganService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+
 
 class PaluwaganPageController extends Controller
 {

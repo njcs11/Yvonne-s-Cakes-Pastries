@@ -168,4 +168,25 @@ document.getElementById('confirmEnrollmentBtn').addEventListener('click', async 
 document.getElementById('close-modal-paluwagan').addEventListener('click', () => {
     document.getElementById('paluwagan-modal').classList.add('hidden');
 });
+
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".paluwagan-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const packageData = {
+                id: card.dataset.id,
+                name: card.dataset.name,
+                imageURL: card.dataset.image,
+                descriptionList: JSON.parse(card.dataset.description),
+                servings: JSON.parse(card.dataset.servings)
+            };
+
+            openPaluwaganModal(packageData);
+        });
+    });
+});
+
 </script>

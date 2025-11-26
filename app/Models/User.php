@@ -2,16 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
-
-    protected $table = 'user';       // Table name
-    protected $primaryKey = 'userID'; // Primary key
-    public $timestamps = true;        // Use created_at / updated_at
+    protected $table = 'user';         // Confirmed your table name is 'user'
+    protected $primaryKey = 'userID';  // Primary key
+    public $timestamps = true;         // Use timestamps
 
     protected $fillable = [
         'username',
@@ -20,7 +17,8 @@ class User extends Authenticatable
         'status',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'roleID', 'roleID');
+    }
 }

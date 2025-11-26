@@ -4,44 +4,38 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\Customer;
-use App\Models\PaluwaganEntry;
-use App\Models\PaluwaganSchedule;
 use App\Models\Ingredient;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // ✔ Total Revenue from COMPLETED orders
-        $totalRevenue = Order::where('status', 'Completed')->sum('totalAmount');
+        // Orders
+        $totalRevenue = Order::where('status', 'completed')->sum('totalAmount') ?? 0;
+        $completedOrders = Order::where('status', 'completed')->count() ?? 0;
+        $pendingOrders = Order::where('status', 'pending')->count() ?? 0;
 
-        // ✔ Count completed orders
-        $completedOrders = Order::where('status', 'Completed')->count();
+        // Paluwagan totals
+        $activePaluwagan = DB::table('paluwaganentry')
+            ->join('paluwaganpackage', 'paluwaganentry.packageID', '=', 'paluwaganpackage.packageID')
+            ->where('paluwaganentry.status', 'ACTIVE')
+            ->sum('paluwaganpackage.totalAmount');
 
-        // ✔ Pending Orders
-        $pendingOrders = Order::where('status', 'Pending')->count();
+        $collected = DB::table('paluwaganentry')
+            ->join('paluwaganpackage', 'paluwaganentry.packageID', '=', 'paluwaganpackage.packageID')
+            ->where('paluwaganentry.status', 'COLLECTED')
+            ->sum('paluwaganpackage.totalAmount');
 
-        // ✔ Active Paluwagan total collected
-        $activePaluwagan = PaluwaganSchedule::where('status', 'Active')->sum('amountPaid');
+        // Inventory counts
+        $totalProducts = Ingredient::count();
+        $lowStock = Ingredient::where('currentStock', '>', 0)
+                              ->whereColumn('currentStock', '<=', 'minStockLevel')
+                              ->count();
 
-        // ✔ Total collected payments
-        $collected = PaluwaganSchedule::where('isPaid', 1)->sum('amountPaid');
-
-        // ✔ Low stock items (ingredients qty < threshold)
-        $lowStock = Ingredient::where('quantityOnHand', '<', 10)->count();
-
-        // ✔ Total Customers
-        $totalCustomers = Customer::count();
-
-        // ✔ Total Products
-        $totalProducts = Product::count();
-
-        // ✔ Recent Orders (latest 5)
-        $recentOrders = Order::orderBy('orderDate', 'DESC')
-                        ->take(5)
-                        ->get();
+        // Total users
+        $totalCustomers = User::count();
 
         return view('admin.dashboard', compact(
             'totalRevenue',
@@ -49,10 +43,9 @@ class AdminDashboardController extends Controller
             'pendingOrders',
             'activePaluwagan',
             'collected',
-            'lowStock',
-            'totalCustomers',
             'totalProducts',
-            'recentOrders'
+            'lowStock',
+            'totalCustomers'
         ));
     }
 }

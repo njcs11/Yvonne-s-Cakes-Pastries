@@ -47,4 +47,13 @@ class PaluwaganRepository implements PaluwaganRepositoryInterface
             'status' => 'ACTIVE'
         ]);
     }
+    public function getAllEntriesByStatus(string $status)
+{
+    return DB::table('paluwaganentry')
+        ->join('paluwaganpackage', 'paluwaganentry.packageID', '=', 'paluwaganpackage.packageID')
+        ->where('paluwaganentry.status', strtoupper($status))
+        ->select('paluwaganpackage.totalAmount as package_amount')
+        ->get();
+}
+
 }

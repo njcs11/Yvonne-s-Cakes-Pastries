@@ -2,63 +2,77 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use App\Services\UserManagementServiceInterface;
+use App\Models\User;
 
 class AdminUsersController extends Controller
 {
-    // Show user management page with search & pagination
+    protected $userService;
+
+    public function __construct(UserManagementServiceInterface $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    /**
+     * Display paginated list of users
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
 
-        $users = User::query()
-            ->when($search, function ($query, $search) {
-                $query->where('username', 'like', "%{$search}%")
-                      ->orWhere('userID', 'like', "%{$search}%");
-            })
-            ->orderBy('userID', 'desc')
-            ->paginate(10);
-            
-              $roles = Privilege::all(); // fetch all roles dynamically
+        $users = User::when($search, function ($query, $search) {
+            $query->where('username', 'like', "%{$search}%")
+                  ->orWhere('userID', 'like', "%{$search}%");
+        })
+        ->orderBy('userID', 'desc')
+        ->paginate(10);
 
-        return view('admin.users', compact('users', 'search'));
+        $roles = \App\Models\Role::all();
+
+        return view('admin.Users', compact('users', 'search', 'roles'));
     }
 
-    // Show single user for modal (AJAX)
-    public function show($id)
-    {
-        $user = User::findOrFail($id);
-        return response()->json($user);
-    }
-
-    // Create new admin user
+    /**
+     * Store new admin user
+     */
     public function storeAdmin(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|max:255|unique:user,username',
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('user', 'username'),
+            ],
             'password' => 'required|string|min:6|confirmed',
-            'roleID'   => 'required|integer',
+            'roleID' => 'required|integer',
         ]);
 
-        User::create([
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'roleID'   => $request->roleID,
-            'status'   => 1,
-        ]);
+        try {
+            $user = $this->userService->createUser([
+                'username' => $request->username,
+                'password' => $request->password,
+                'roleID' => $request->roleID,
+            ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'Admin account created successfully.');
+            return redirect()->route('admin.users')->with('success', 'Admin account created successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to create admin user: ' . $e->getMessage());
+            return back()->withErrors(['msg' => 'Failed to create admin account.']);
+        }
     }
 
-    // Deactivate user (soft delete alternative)
-    public function deactivate($id)
-    {
-        $user = User::findOrFail($id);
-        $user->status = 0; // inactive
-        $user->save();
+public function toggleStatus($userID)
+{
+    $user = \App\Models\User::findOrFail($userID);
+    $user->status = $user->status == 1 ? 0 : 1;
+    $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'User deactivated successfully.');
-    }
+    return response()->json(['status' => $user->status]);
+}
+
 }

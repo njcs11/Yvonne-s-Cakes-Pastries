@@ -8,23 +8,27 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-white">
-    <div class="flex min-h-screen">
-        <!-- Admin Sidebar -->
-        <aside class="w-70 bg-white border-r border-pink-200">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside class="bg-white border-r border-pink-200">
             @include('partials.admin-sidebar')
         </aside>
 
-        
-         <div class="flex-1 flex flex-col">
-            <!-- Admin Header -->
-            <header class="">
+        <!-- RIGHT SIDE -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <header class="shrink-0">
                 @include('partials.admin-header')
             </header>
-            <!-- Main Content -->
-            <main class="flex-1">
+
+            <!-- MAIN CONTENT (scrollable) -->
+            <main class="flex-1 overflow-y-auto p-4">
                 @yield('content')
             </main>
-         </div>       
+
+        </div>
     </div>
 </body>
 </html>
