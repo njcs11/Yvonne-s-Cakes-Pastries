@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    protected $table = 'user';         // Confirmed your table name is 'user'
-    protected $primaryKey = 'userID';  // Primary key
-    public $timestamps = true;         // Use timestamps
+    protected $table = 'user';         
+    protected $primaryKey = 'userID';  
+    public $timestamps = true;         
 
     protected $fillable = [
         'username',
@@ -21,9 +21,5 @@ class User extends Model
     {
         return $this->belongsTo(Role::class, 'roleID', 'roleID');
     }
-<<<<<<< Updated upstream
-}
-=======
 }
 
->>>>>>> Stashed changes

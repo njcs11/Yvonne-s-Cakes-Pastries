@@ -12,7 +12,12 @@ class AppServiceProvider extends ServiceProvider
         // Keep only unrelated bindings
         $this->app->bind(PaluwaganRepositoryInterface::class, PaluwaganRepository::class);
 
-        $this->app->bind(
+       $this->app->bind(
+    \App\Services\UserManagementServiceInterface::class,
+    \App\Services\UserManagementService::class
+);
+
+    $this->app->bind(
         \App\Services\UserManagementServiceInterface::class,
         \App\Services\UserManagementService::class
     );

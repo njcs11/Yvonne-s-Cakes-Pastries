@@ -115,7 +115,7 @@
             return;
         }
 
-<<<<<<< Updated upstream
+
 // Close modal
 document.getElementById('close-modal-paluwagan').addEventListener('click', () => {
     document.getElementById('paluwagan-modal').classList.add('hidden');
@@ -141,7 +141,7 @@ document.getElementById('close-modal-paluwagan').addEventListener('click', () =>
     });
 });
 
-=======
+
         try {
             const response = await fetch('{{ route("paluwagan.join") }}', {
                 method: 'POST',
@@ -179,5 +179,5 @@ document.getElementById('close-modal-paluwagan').addEventListener('click', () =>
         document.getElementById('paluwagan-modal').classList.add('hidden');
     };
 })();
->>>>>>> Stashed changes
+
 </script>

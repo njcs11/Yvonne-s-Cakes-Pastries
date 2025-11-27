@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Order; 
+use App\Models\OrderItem; 
 
 class CheckoutPageController extends Controller
 {
@@ -19,55 +20,63 @@ class CheckoutPageController extends Controller
         return view('user.CheckoutPage', compact('cart', 'subtotal', 'downpayment', 'balance'));
     }
 
-   public function placeOrder(Request $request)
-{
-    $user = session('logged_in_user');
-    if (!$user) {
-        return redirect()->route('login')->with('error', 'You must be logged in to place an order.');
-    }
+    public function placeOrder(Request $request)
+    {
+       $user = session('logged_in_user');
 
-    $customerID = $user['customerID'];
+$userID = $user['customerID'] ?? null;
 
-    $cart = session('cart', []);
-    if (empty($cart)) {
-        return redirect()->route('cart')->with('error', 'Your cart is empty.');
-    }
-
-    $validated = $request->validate([
-        'deliveryAddress' => 'required|string|max:255',
-        'remarks' => 'nullable|string|max:200',
-        'deliveryDate' => 'nullable|date',
-        'payment' => 'required|string|in:gcash,cod',
-        'paymentProof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-    ]);
-
-    DB::transaction(function() use ($validated, $cart, $customerID) {
-        $totalAmount = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-
-        // Create order
-        $order = Order::create([
-            'customerID' => $customerID,
-            'totalAmount' => $totalAmount,
-            'deliveryAddress' => $validated['deliveryAddress'],
-            'remarks' => $validated['remarks'] ?? '',
-            'paymentStatus' => 'PENDING',
-            'deliveryDate' => $validated['deliveryDate'] ?? now(),
-        ]);
-
-        foreach ($cart as $item) {
-            OrderItem::create([
-                'orderID' => $order->orderID,
-                'productID' => $request->productID ?? $request->id,
-                'price' => $item['price'],
-                'qty' => $item['quantity'],
-                'subtotal' => $item['price'] * $item['quantity'],
-            ]);
-        }
-
-        session()->forget('cart');
-    });
-
-    return redirect()->route('catalog')->with('success', 'Your order has been placed successfully!');
+if (!$userID) {
+    return back()->with('error', 'You must be logged in to place an order.');
 }
 
+
+        $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+
+        // Validate delivery info
+        $validated = $request->validate([
+            'deliveryAddress' => 'required|string|max:255',
+            'remarks' => 'nullable|string|max:200',
+            'deliveryDate' => 'nullable|date',
+            'payment' => 'required|string|in:gcash,cod',
+            'paymentProof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
+
+        DB::transaction(function () use ($userID, $cart, $validated) {
+            $totalAmount = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+
+            $order = Order::create([
+                'customerID' => $userID,
+                'status' => 'PENDING',
+                'orderDate' => now(),
+                'totalAmount' => $totalAmount,
+                'remarks' => $validated['remarks'] ?? '',
+                'deliveryAddress' => $validated['deliveryAddress'],
+                'paymentStatus' => 'PENDING',
+                'deliveryDate' => $validated['deliveryDate'] ?? now(),
+            ]);
+
+            foreach ($cart as $item) {
+    // Skip items without a valid product ID (customization items)
+    $productID = isset($item['id']) && $item['id'] > 0 ? $item['id'] : null;
+
+    OrderItem::create([
+        'orderID' => $order->orderID,
+        'productID' => $productID,
+        'price' => $item['price'],
+        'qty' => $item['quantity'],
+        'subtotal' => $item['price'] * $item['quantity'],
+    ]);
+}
+
+        });
+
+        session()->forget('cart');
+
+        return redirect()->route('catalog')->with('success', 'Your order has been placed successfully!');
+    }
 }

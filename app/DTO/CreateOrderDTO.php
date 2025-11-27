@@ -7,7 +7,7 @@ class CreateOrderDTO
     public int $customerID;
     public string $deliveryAddress;
     public string $remarks;
-    public array $items; // each item: productID, qty, price
+    public array $items;
 
     public function __construct(array $data)
     {

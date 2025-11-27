@@ -65,7 +65,7 @@ class ProductBuilder
         return $this;
     }
 
-    // Persist product + servings + ingredients
+    // servings + ingredients
     public function build(): Product
     {
         $this->product->save();

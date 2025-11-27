@@ -19,7 +19,7 @@ class CartPageController extends Controller
         $cart = session('cart', []);
 
         $product = [
-            'productID' => $request->productID ?? $request->id,   // store numeric productID
+            'id' => $request->id,
             'name' => $request->name,
             'price' => $request->price,
             'quantity' => $request->quantity ?? 1,
@@ -27,18 +27,17 @@ class CartPageController extends Controller
             'customization' => $request->customization ?? null,
         ];
 
-        // Use productID consistently as the key
-        $key = $product['productID'];
-        if (isset($cart[$key])) {
+        // If product already in cart
+        if (isset($cart[$product['id']])) {
             // If customization differs, treat as new item
-            if ($cart[$key]['customization'] !== $product['customization']) {
-                $uniqueKey = $key . '-' . md5(json_encode($product['customization']));
+            if ($cart[$product['id']]['customization'] !== $product['customization']) {
+                $uniqueKey = $product['id'] . '-' . md5(json_encode($product['customization']));
                 $cart[$uniqueKey] = $product;
             } else {
-                $cart[$key]['quantity'] += $product['quantity'];
+                $cart[$product['id']]['quantity'] += $product['quantity'];
             }
         } else {
-            $cart[$key] = $product;
+            $cart[$product['id']] = $product;
         }
 
         session(['cart' => $cart]);
@@ -49,7 +48,7 @@ class CartPageController extends Controller
         return response()->json(['success' => true, 'cartCount' => $cartCount]);
     }
 
-    // Update quantity
+    // Update quantity (+ / -)
     public function update(Request $request)
     {
         $cart = session('cart', []);
@@ -59,6 +58,7 @@ class CartPageController extends Controller
             return redirect()->back()->with('error', 'Product not found in cart.');
         }
 
+        // Update the quantity based on action
         if ($request->action === 'increase') {
             $cart[$id]['quantity'] += 1;
         } elseif ($request->action === 'decrease' && $cart[$id]['quantity'] > 1) {
@@ -76,6 +76,7 @@ class CartPageController extends Controller
         $cart = session('cart', []);
         $id = $request->id;
 
+        // If product exists in the cart, remove it
         if (isset($cart[$id])) {
             unset($cart[$id]);
             session(['cart' => $cart]);
@@ -84,7 +85,7 @@ class CartPageController extends Controller
         return redirect()->back();
     }
 
-    // Clear cart
+    // Clear entire cart
     public function clear()
     {
         session()->forget('cart');

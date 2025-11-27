@@ -23,7 +23,8 @@ return new User([
 
 public function createUserWithDefaults(string $username, string $rawPassword): User
 {
-// default to roleID = 2 (regular user) — change as needed
-return $this->createUser($username, $rawPassword, 2);
+
+    return $this->createUser($username, $rawPassword, 2);
+    
 }
 }

@@ -8,7 +8,7 @@ class ProductLoader
 {
     public static function loadAllProducts()
     {
-        // Fetch regular products
+        
         $products = DB::table('product')
             ->leftJoin('producttype', 'product.productTypeID', '=', 'producttype.productTypeID')
             ->leftJoin('serving', 'product.productID', '=', 'serving.productID')
@@ -36,11 +36,11 @@ class ProductLoader
                         ? array_filter(array_map('trim', explode("\n", $first->description)))
                         : [],
                     'imageURL' => $first->imageURL,
-                    'productType' => strtolower(trim($first->productType)), // ensure lowercase & no spaces
+                    'productType' => strtolower(trim($first->productType)), 
                     'servings' => $group->map(fn($g) => [
                         'size' => $g->size,
                         'price' => $g->price
-                    ])->values()->toArray(), // convert to array
+                    ])->values()->toArray(), 
                 ];
             })
             ->values();

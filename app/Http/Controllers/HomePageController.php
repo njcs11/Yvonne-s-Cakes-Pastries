@@ -87,14 +87,11 @@ class HomePageController extends Controller
                 ->values();
         }
 
-<<<<<<< Updated upstream
         // Pass everything to view
         return view('user.HomePage', compact('categories', 'featuredProducts', 'categoryIcons'));
-=======
         // Featured products
         $featuredProducts = $query->orderBy('productID', 'asc')->take(8)->get();
 
         return view('user.HomePage', compact('categories', 'featuredProducts'));
->>>>>>> Stashed changes
     }
 }

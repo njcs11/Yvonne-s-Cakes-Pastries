@@ -15,13 +15,12 @@
     {{-- Header --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
         <div>
-<<<<<<< Updated upstream
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">User Management</h1>
             <p class="text-gray-500 text-sm md:text-base">{{ $users->total() }} registered users</p>
-=======
+
             <h1 class="text-4xl font-bold text-gray-800">User Management</h1>
             <p class="text-gray-500">{{ $users->total() }} registered users</p>
->>>>>>> Stashed changes
+  
         </div>
 
         <button 
@@ -46,7 +45,6 @@
 
     {{-- Users List --}}
     <div class="mt-6 space-y-4">
-<<<<<<< Updated upstream
         @forelse($users as $u)
             <div class="bg-white border border-pink-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
@@ -59,7 +57,7 @@
                 <button 
                     @click="showDetails = true; user = {{ $u->toJson() }}"
                     class="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100 w-full md:w-auto">
-=======
+
         @forelse($users as $user)
             <div class="bg-white border border-pink-200 rounded-xl p-4 flex items-center justify-between">
                 <div class="flex gap-4">
@@ -74,21 +72,21 @@
                 <button 
                     @click="showDetails = true; user = {{ $user->toJson() }}"
                     class="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100">
->>>>>>> Stashed changes
+
                     View Details
                 </button>
             </div>
         @empty
-<<<<<<< Updated upstream
+
             <p class="text-gray-500">No users yet.</p>
-=======
+
             <p class="text-gray-500">No users found.</p>
->>>>>>> Stashed changes
+
         @endforelse
 
         {{-- Pagination --}}
         <div class="mt-4">
-<<<<<<< Updated upstream
+
             {{ $users->links() }}
         </div>
     </div>
@@ -161,13 +159,9 @@
     </div>
 
     {{-- ADD ADMIN MODAL --}}
-=======
             {{ $users->withQueryString()->links() }}
         </div>
     </div>
-
-    <!-- ADD ADMIN MODAL -->
->>>>>>> Stashed changes
     <div 
         x-show="showAdd"
         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3"
